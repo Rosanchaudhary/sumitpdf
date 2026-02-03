@@ -1,84 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><%= note.title %> - PDF Viewer</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            'playfair': ['Playfair Display', 'serif'],
-            'work': ['Work Sans', 'sans-serif'],
-          },
-          colors: {
-            primary: '#667eea',
-            'primary-dark': '#5a67d8',
-            secondary: '#764ba2',
-          },
+            playfair: ['Playfair Display', 'serif'],
+            work: ['Work Sans', 'sans-serif'],
+          }
         }
       }
     }
   </script>
+
   <style>
     body {
-      font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Work Sans', system-ui, sans-serif;
       margin: 0;
       overflow: hidden;
     }
-    
+
     .gradient-bg {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
+
+    /* Dark mode rendering */
+    .dark-mode canvas {
+      filter: invert(1) hue-rotate(180deg);
+      background: #111;
+    }
   </style>
 </head>
-<body class="m-0 overflow-hidden">
-  <div class="flex flex-col h-screen">
-    <!-- PDF Header -->
-    <div class="gradient-bg text-white px-4 sm:px-8 py-4 shadow-lg z-10">
-      <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-8">
-        <!-- PDF Info -->
-        <div class="flex-1 min-w-0 w-full lg:w-auto">
-          <!-- Breadcrumb -->
-          <div class="text-xs sm:text-sm opacity-85 mb-2 overflow-x-auto whitespace-nowrap">
-            <a href="/" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity">Home</a>
-            <span class="mx-1">/</span>
-            <a href="/degrees/<%= degree._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity"><%= degree.name %></a>
-            <span class="mx-1">/</span>
-            <a href="/semesters/<%= semester._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity">Sem <%= semester.number %></a>
-            <span class="mx-1">/</span>
-            <a href="/subjects/<%= subject._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity"><%= subject.name %></a>
-          </div>
 
-          <!-- PDF Title -->
-          <h1 class="font-playfair text-xl sm:text-2xl lg:text-3xl font-bold mb-1 truncate lg:whitespace-normal">
-            <%= note.title %>
-          </h1>
+<body class="m-0">
+<div class="flex flex-col h-screen">
 
-          <!-- PDF Meta -->
-          <div class="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm opacity-90">
-            <span class="flex items-center gap-1.5">
-              📝 <%= note.author %>
-            </span>
-            <span class="flex items-center gap-1.5">
-              📅 <%= new Date(note.uploadDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-            </span>
-          </div>
+  <!-- HEADER -->
+  <div class="gradient-bg text-white px-4 sm:px-8 py-4 shadow-lg z-10">
+    <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
+
+      <div class="min-w-0">
+        <div class="text-xs opacity-85 mb-1 overflow-x-auto whitespace-nowrap">
+          <a href="/" class="opacity-80 hover:underline">Home</a> /
+          <a href="/degrees/<%= degree._id %>" class="opacity-80 hover:underline"><%= degree.name %></a> /
+          <a href="/semesters/<%= semester._id %>" class="opacity-80 hover:underline">Sem <%= semester.number %></a> /
+          <a href="/subjects/<%= subject._id %>" class="opacity-80 hover:underline"><%= subject.name %></a>
+        </div>
+
+        <h1 class="font-playfair text-xl sm:text-2xl font-bold truncate">
+          <%= note.title %>
+        </h1>
+
+        <div class="text-xs sm:text-sm opacity-90 mt-1">
+          📝 <%= note.author %> ·
+          📅 <%= new Date(note.uploadDate).toLocaleDateString() %>
         </div>
       </div>
-    </div>
 
-    <!-- PDF Viewer -->
-    <iframe 
-      src="<%= note.pdfUrl %>#toolbar=1&navpanes=1&scrollbar=1" 
-      class="flex-1 w-full border-0 bg-gray-700"
-      title="<%= note.title %>"
-    ></iframe>
+      <!-- Dark Mode Button -->
+      <button
+        id="darkToggle"
+        class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg text-sm backdrop-blur transition"
+      >
+        🌙 Dark
+      </button>
+
+    </div>
   </div>
+
+  <!-- PDF VIEW -->
+  <div id="pdf-container" class="flex-1 overflow-auto bg-gray-700 px-2 sm:px-6 py-4">
+    <div id="pdf-viewer" class="max-w-5xl mx-auto space-y-6"></div>
+  </div>
+
+</div>
+
+<script>
+  const pdfUrl = "<%= note.pdfUrl %>";
+  const viewer = document.getElementById("pdf-viewer");
+  const container = document.getElementById("pdf-container");
+  const darkToggle = document.getElementById("darkToggle");
+
+  let isDark = false;
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  // Dark mode toggle
+  darkToggle.onclick = () => {
+    isDark = !isDark;
+    container.classList.toggle("dark-mode", isDark);
+    darkToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+  };
+
+  pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+    const isMobile = window.innerWidth < 768;
+    const scale = isMobile ? 1.1 : 1.5;
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.rendered) {
+          renderPage(+entry.target.dataset.page, scale, entry.target);
+          entry.target.dataset.rendered = "true";
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: container,
+      rootMargin: "300px"
+    });
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const placeholder = document.createElement("div");
+      placeholder.dataset.page = i;
+      placeholder.className = "flex justify-center";
+      placeholder.style.minHeight = "100vh";
+      viewer.appendChild(placeholder);
+      observer.observe(placeholder);
+    }
+
+    function renderPage(pageNum, scale, wrapper) {
+      pdf.getPage(pageNum).then(page => {
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.className =
+          "rounded-lg shadow-xl bg-white mb-4";
+
+        wrapper.appendChild(canvas);
+
+        page.render({ canvasContext: ctx, viewport });
+      });
+    }
+  }).catch(err => {
+    viewer.innerHTML = `<div class="text-white text-center py-10">❌ Failed to load PDF</div>`;
+    console.error(err);
+  });
+</script>
+
 </body>
 </html>
