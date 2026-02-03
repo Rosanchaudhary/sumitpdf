@@ -3,6 +3,8 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const adminController = require("../controllers/adminController.js");
+const auth = require("../middlewares/auth.js");
+const adminOnly = require("../middlewares/adminOnly.js");
 
 // Configure multer for PDF upload
 const storage = multer.diskStorage({
@@ -32,49 +34,125 @@ const upload = multer({
 });
 
 // Admin Dashboard
-router.get("/", adminController.getDashboard);
+router.get("/", auth, adminOnly, adminController.getDashboard);
 
 // Engineering Degree Routes
-router.get("/degrees", adminController.getDegrees);
-router.get("/degrees/new", adminController.getNewDegree);
-router.post("/degrees", adminController.createDegree);
-router.get("/degrees/:id/edit", adminController.getEditDegree);
-router.post("/degrees/:id/edit", adminController.updateDegree);
-router.post("/degrees/:id/delete", adminController.deleteDegree);
+router.get("/degrees", auth, adminOnly, adminController.getDegrees);
+router.get("/degrees/new", auth, adminOnly, adminController.getNewDegree);
+router.post("/degrees", auth, adminOnly, adminController.createDegree);
+router.get("/degrees/:id/edit", auth, adminOnly, adminController.getEditDegree);
+router.post("/degrees/:id/edit", auth, adminOnly, adminController.updateDegree);
+router.post(
+  "/degrees/:id/delete",
+  auth,
+  adminOnly,
+  adminController.deleteDegree,
+);
 
 // Semester Routes
-router.get("/degrees/:degreeId/semesters", adminController.getSemesters);
-router.get("/degrees/:degreeId/semesters/new", adminController.getNewSemester);
-router.post("/degrees/:degreeId/semesters", adminController.createSemester);
-router.get("/semesters/:id/edit", adminController.getEditSemester);
-router.post("/semesters/:id/edit", adminController.updateSemester);
-router.post("/semesters/:id/delete", adminController.deleteSemester);
+router.get(
+  "/degrees/:degreeId/semesters",
+  auth,
+  adminOnly,
+  adminController.getSemesters,
+);
+router.get(
+  "/degrees/:degreeId/semesters/new",
+  auth,
+  adminOnly,
+  adminController.getNewSemester,
+);
+router.post(
+  "/degrees/:degreeId/semesters",
+  auth,
+  adminOnly,
+  adminController.createSemester,
+);
+router.get(
+  "/semesters/:id/edit",
+  auth,
+  adminOnly,
+  adminController.getEditSemester,
+);
+router.post(
+  "/semesters/:id/edit",
+  auth,
+  adminOnly,
+  adminController.updateSemester,
+);
+router.post(
+  "/semesters/:id/delete",
+  auth,
+  adminOnly,
+  adminController.deleteSemester,
+);
 
 // Subject Routes
-router.get("/semesters/:semesterId/subjects", adminController.getSubjects);
+router.get(
+  "/semesters/:semesterId/subjects",
+  auth,
+  adminOnly,
+  adminController.getSubjects,
+);
 router.get(
   "/semesters/:semesterId/subjects/new",
+  auth,
+  adminOnly,
   adminController.getNewSubject,
 );
-router.post("/semesters/:semesterId/subjects", adminController.createSubject);
-router.get("/subjects/:id/edit", adminController.getEditSubject);
-router.post("/subjects/:id/edit", adminController.updateSubject);
-router.post("/subjects/:id/delete", adminController.deleteSubject);
+router.post(
+  "/semesters/:semesterId/subjects",
+  auth,
+  adminOnly,
+  adminController.createSubject,
+);
+router.get(
+  "/subjects/:id/edit",
+  auth,
+  adminOnly,
+  adminController.getEditSubject,
+);
+router.post(
+  "/subjects/:id/edit",
+  auth,
+  adminOnly,
+  adminController.updateSubject,
+);
+router.post(
+  "/subjects/:id/delete",
+  auth,
+  adminOnly,
+  adminController.deleteSubject,
+);
 
 // Note Routes
-router.get("/subjects/:subjectId/notes", adminController.getNotes);
-router.get("/subjects/:subjectId/notes/new", adminController.getNewNote);
+router.get(
+  "/subjects/:subjectId/notes",
+  auth,
+  adminOnly,
+  adminController.getNotes,
+);
+router.get(
+  "/subjects/:subjectId/notes/new",
+  auth,
+  adminOnly,
+  adminController.getNewNote,
+);
 router.post(
   "/subjects/:subjectId/notes",
   upload.single("pdfFile"),
+  auth,
+  adminOnly,
   adminController.createNote,
 );
-router.get("/notes/:id/edit", adminController.getEditNote);
+router.get("/notes/:id/edit", auth, adminOnly, adminController.getEditNote);
 router.post(
   "/notes/:id/edit",
   upload.single("pdfFile"),
+  auth,
+  adminOnly,
   adminController.updateNote,
 );
-router.post("/notes/:id/delete", adminController.deleteNote);
+router.post("/notes/:id/delete", auth, adminOnly, adminController.deleteNote);
 
 module.exports = router;

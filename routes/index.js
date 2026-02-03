@@ -13,6 +13,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+router.get('/login', async (req, res) => {
+  try {
+
+    res.render('login');
+  } catch (error) {
+    res.status(500).render('error', { error: error.message });
+  }
+});
+
 // View semesters for a specific degree
 router.get('/degrees/:degreeId', async (req, res) => {
   try {
