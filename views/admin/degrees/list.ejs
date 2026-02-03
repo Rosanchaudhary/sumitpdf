@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Engineering Degrees - Admin</title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Engineering Degrees</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/">View Site</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="page-header">
+        <h2>All Engineering Degrees</h2>
+        <a href="/admin/degrees/new" class="btn btn-primary">+ Add New Degree</a>
+      </div>
+
+      <div class="table-container">
+        <% if (degrees.length === 0) { %>
+          <p class="empty-state">
+            No engineering degrees added yet. 
+            <a href="/admin/degrees/new">Add the first degree</a>
+          </p>
+        <% } else { %>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Degree Name</th>
+                <th>Short Name</th>
+                <th>Semesters</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% degrees.forEach(degree => { %>
+                <tr>
+                  <td><strong><%= degree.name %></strong></td>
+                  <td><%= degree.shortName || '-' %></td>
+                  <td><%= degree.semesters.length %></td>
+                  <td class="actions">
+                    <a href="/admin/degrees/<%= degree._id %>/semesters" class="btn btn-sm">View Semesters</a>
+                    <a href="/admin/degrees/<%= degree._id %>/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    <form action="/admin/degrees/<%= degree._id %>/delete" method="POST" style="display: inline;" 
+                          onsubmit="return confirm('Are you sure? This will delete all semesters, subjects, and notes under this degree.');">
+                      <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

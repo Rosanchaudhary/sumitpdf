@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Degree - Admin</title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Edit Engineering Degree</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/degrees">Back to Degrees</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="form-container">
+        <h2>Edit "<%= degree.name %>"</h2>
+        
+        <form action="/admin/degrees/<%= degree._id %>/edit" method="POST">
+          <div class="form-group">
+            <label for="name">Degree Name *</label>
+            <select id="name" name="name" required>
+              <option value="">Select a degree</option>
+              <option value="Civil" <%= degree.name === 'Civil' ? 'selected' : '' %>>Civil Engineering</option>
+              <option value="Electrical" <%= degree.name === 'Electrical' ? 'selected' : '' %>>Electrical Engineering</option>
+              <option value="Mechanical" <%= degree.name === 'Mechanical' ? 'selected' : '' %>>Mechanical Engineering</option>
+              <option value="Computer" <%= degree.name === 'Computer' ? 'selected' : '' %>>Computer Engineering</option>
+              <option value="Electronics" <%= degree.name === 'Electronics' ? 'selected' : '' %>>Electronics Engineering</option>
+              <option value="Chemical" <%= degree.name === 'Chemical' ? 'selected' : '' %>>Chemical Engineering</option>
+              <option value="Aerospace" <%= degree.name === 'Aerospace' ? 'selected' : '' %>>Aerospace Engineering</option>
+              <option value="Other" <%= degree.name === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="shortName">Short Name (Optional)</label>
+            <input 
+              type="text" 
+              id="shortName" 
+              name="shortName" 
+              value="<%= degree.shortName || '' %>"
+              placeholder="e.g., CE, EE, ME"
+              maxlength="10"
+            >
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Degree</button>
+            <a href="/admin/degrees" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

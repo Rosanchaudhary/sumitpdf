@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload New Note - Admin</title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Upload New Note</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/subjects/<%= subject._id %>/notes">Back to Notes</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="breadcrumb">
+        <a href="/admin">Dashboard</a> /
+        <a href="/admin/degrees">Degrees</a> /
+        <a href="/admin/degrees/<%= subject.semester.engineeringDegree._id %>/semesters">
+          <%= subject.semester.engineeringDegree.name %>
+        </a> /
+        <a href="/admin/semesters/<%= subject.semester._id %>/subjects">
+          Semester <%= subject.semester.number %>
+        </a> /
+        <a href="/admin/subjects/<%= subject._id %>/notes"><%= subject.name %></a> /
+        <span>New Note</span>
+      </div>
+
+      <div class="form-container">
+        <h2>Upload PDF Note for <%= subject.name %></h2>
+        
+        <form action="/admin/subjects/<%= subject._id %>/notes" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="title">Note Title *</label>
+            <input  
+              type="text" 
+              id="title" 
+              name="title" 
+              required 
+              placeholder="e.g., Chapter 1 - Introduction to Thermodynamics"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="author">Author *</label>
+            <input 
+              type="text" 
+              id="author" 
+              name="author" 
+              required 
+              placeholder="e.g., Prof. John Smith"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="pdfFile">PDF File * (Max 10MB)</label>
+            <input 
+              type="file" 
+              id="pdfFile" 
+              name="pdfFile" 
+              accept=".pdf" 
+              required
+            >
+            <small>Only PDF files are allowed. Maximum file size: 10MB</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Upload Note</button>
+            <a href="/admin/subjects/<%= subject._id %>/notes" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // File size validation
+    document.getElementById('pdfFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const fileSize = file.size / 1024 / 1024; // in MB
+        if (fileSize > 10) {
+          alert('File size exceeds 10MB. Please choose a smaller file.');
+          e.target.value = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

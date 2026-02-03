@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= subject.name %> - Notes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'playfair': ['Playfair Display', 'serif'],
+            'work': ['Work Sans', 'sans-serif'],
+          },
+          colors: {
+            primary: '#667eea',
+            'primary-dark': '#5a67d8',
+            secondary: '#764ba2',
+            accent: '#f093fb',
+          },
+          animation: {
+            'fadeInUp': 'fadeInUp 0.6s ease-out backwards',
+            'slideDown': 'slideDown 0.5s ease-out',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(0)' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-bg-light {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+    
+    .hero-gradient-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 overflow-x-hidden">
+  <!-- Hero Gradient Background -->
+  <div class="hero-gradient-overlay"></div>
+  
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50 animate-slideDown">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+      <a href="/" class="font-playfair text-xl sm:text-2xl lg:text-3xl font-black gradient-text hover:scale-105 transition-transform">
+        📚 Engineering Notes
+      </a>
+      <a href="/admin" class="px-4 sm:px-6 py-2.5 gradient-bg text-white rounded-lg font-semibold text-sm sm:text-base hover:-translate-y-0.5 hover:shadow-md transition-all">
+        Admin Panel
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 pb-16 sm:pb-20">
+    <!-- Breadcrumb -->
+    <div class="mb-6 sm:mb-8 text-xs sm:text-sm text-gray-500 flex items-center flex-wrap gap-2 animate-fadeInUp">
+      <a href="/" class="text-primary hover:text-primary-dark hover:underline transition-colors">
+        Home
+      </a>
+      <span class="opacity-50">/</span>
+      <a href="/degrees/<%= degree._id %>" class="text-primary hover:text-primary-dark hover:underline transition-colors">
+        <%= degree.name %> Engineering
+      </a>
+      <span class="opacity-50">/</span>
+      <a href="/semesters/<%= semester._id %>" class="text-primary hover:text-primary-dark hover:underline transition-colors">
+        Semester <%= semester.number %>
+      </a>
+      <span class="opacity-50">/</span>
+      <span class="text-gray-900 font-medium"><%= subject.name %></span>
+    </div>
+
+    <!-- Page Header -->
+    <header class="text-center mb-12 sm:mb-16 animate-fadeInUp">
+      <div>
+        <h1 class="font-playfair text-3xl sm:text-4xl lg:text-6xl font-black mb-2 sm:mb-4 gradient-text leading-tight">
+          <%= subject.name %>
+        </h1>
+        <% if (subject.code) { %>
+          <p class="text-lg sm:text-xl text-gray-600 font-normal">
+            <%= subject.code %>
+          </p>
+        <% } %>
+      </div>
+      <div class="inline-block mt-4 sm:mt-6 px-5 sm:px-6 py-3 sm:py-3.5 gradient-bg text-white rounded-2xl font-semibold text-sm sm:text-base shadow-md">
+        <%= notes.length %> Note<%= notes.length !== 1 ? 's' : '' %>
+      </div>
+    </header>
+
+    <!-- Empty State -->
+    <% if (notes.length === 0) { %>
+      <div class="text-center py-16 sm:py-20 bg-white rounded-2xl shadow-sm animate-fadeInUp">
+        <div class="text-7xl sm:text-8xl mb-6 opacity-50">📄</div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">No Notes Available</h2>
+        <p class="text-base sm:text-lg text-gray-600 mb-8 px-4">
+          Notes for <%= subject.name %> will appear here once they are uploaded.
+        </p>
+        <a href="/semesters/<%= semester._id %>" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary border-2 border-primary rounded-xl font-semibold hover:bg-primary hover:text-white transition-all text-sm sm:text-base">
+          ← Back to Subjects
+        </a>
+      </div>
+    
+    <!-- Notes List -->
+    <% } else { %>
+      <div class="flex flex-col gap-4 sm:gap-5">
+        <% notes.forEach((note, index) => { %>
+          <a 
+            href="/notes/<%= note._id %>/view" 
+            class="group bg-white rounded-xl p-5 sm:p-7 shadow-sm hover:shadow-lg hover:translate-x-2 transition-all duration-300 grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto] gap-4 sm:gap-6 items-center animate-fadeInUp"
+            style="animation-delay: <%= index * 0.05 %>s"
+          >
+            <!-- Note Icon -->
+            <div class="w-14 h-14 sm:w-16 sm:h-16 gradient-bg-light rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary sm:w-8 sm:h-8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+
+            <!-- Note Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-snug">
+                <%= note.title %>
+              </h3>
+              <div class="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm text-gray-500">
+                <span class="flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <%= note.author %>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <%= new Date(note.uploadDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Note Action (Desktop and Mobile) -->
+            <div class="col-span-2 sm:col-span-1 flex items-center justify-between sm:justify-end gap-4 sm:gap-3 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-200 flex-shrink-0">
+              <span class="font-semibold text-primary text-sm sm:text-base">View PDF</span>
+              <div class="text-3xl text-primary group-hover:translate-x-1 transition-transform">
+                →
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-12 px-4 text-gray-500 text-sm sm:text-base mt-12">
+    <p>Engineering Notes Library &copy; 2026</p>
+  </footer>
+</body>
+</html>

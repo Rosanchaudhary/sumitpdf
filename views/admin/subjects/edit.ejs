@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Subject - Admin</title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Edit Subject</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/semesters/<%= subject.semester._id %>/subjects">Back to Subjects</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="breadcrumb">
+        <a href="/admin">Dashboard</a> /
+        <a href="/admin/degrees">Degrees</a> /
+        <a href="/admin/degrees/<%= subject.semester.engineeringDegree._id %>/semesters">
+          <%= subject.semester.engineeringDegree.name %>
+        </a> /
+        <a href="/admin/semesters/<%= subject.semester._id %>/subjects">
+          Semester <%= subject.semester.number %>
+        </a> /
+        <span>Edit Subject</span>
+      </div>
+
+      <div class="form-container">
+        <h2>Edit "<%= subject.name %>"</h2>
+        
+        <form action="/admin/subjects/<%= subject._id %>/edit" method="POST">
+          <div class="form-group">
+            <label for="name">Subject Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              value="<%= subject.name %>"
+              required 
+              placeholder="e.g., Thermodynamics, Circuit Analysis"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="code">Subject Code (Optional)</label>
+            <input 
+              type="text" 
+              id="code" 
+              name="code" 
+              value="<%= subject.code || '' %>"
+              placeholder="e.g., MECH301, EE201"
+              maxlength="20"
+            >
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Subject</button>
+            <a href="/admin/semesters/<%= subject.semester._id %>/subjects" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semesters - <%= degree.name %></title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Manage Semesters</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/degrees">Back to Degrees</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="breadcrumb">
+        <a href="/admin">Dashboard</a> /
+        <a href="/admin/degrees">Degrees</a> /
+        <span><%= degree.name %></span>
+      </div>
+
+      <div class="page-header">
+        <h2>Semesters for <%= degree.name %></h2>
+        <a href="/admin/degrees/<%= degree._id %>/semesters/new" class="btn btn-primary">
+          + Add New Semester
+        </a>
+      </div>
+
+      <div class="table-container">
+        <% if (semesters.length === 0) { %>
+          <p class="empty-state">
+            No semesters added yet. 
+            <a href="/admin/degrees/<%= degree._id %>/semesters/new">Add the first semester</a>
+          </p>
+        <% } else { %>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Semester Number</th>
+                <th>Name</th>
+                <th>Subjects</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% semesters.forEach(semester => { %>
+                <tr>
+                  <td><strong>Semester <%= semester.number %></strong></td>
+                  <td><%= semester.name %></td>
+                  <td><%= semester.subjects.length %></td>
+                  <td class="actions">
+                    <a href="/admin/semesters/<%= semester._id %>/subjects" class="btn btn-sm">View Subjects</a>
+                    <a href="/admin/semesters/<%= semester._id %>/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    <form action="/admin/semesters/<%= semester._id %>/delete" method="POST" style="display: inline;" 
+                          onsubmit="return confirm('Are you sure? This will delete all subjects and notes under this semester.');">
+                      <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

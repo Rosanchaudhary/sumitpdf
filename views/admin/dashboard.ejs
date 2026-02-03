@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Engineering Notes</title>
+  <link rel="stylesheet" href="/stylesheets/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Admin Dashboard</h1>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/degrees">Manage Degrees</a>
+        <a href="/">View Site</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <div class="dashboard-grid">
+        <div class="card">
+          <h2>Engineering Degrees</h2>
+          <p class="count"><%= degrees.length %> Total</p>
+          <a href="/admin/degrees" class="btn btn-primary">Manage Degrees</a>
+        </div>
+
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <ul class="quick-actions">
+            <li><a href="/admin/degrees/new">Add New Degree</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="recent-section">
+        <h2>All Engineering Degrees</h2>
+        <div class="degrees-list">
+          <% if (degrees.length === 0) { %>
+            <p class="empty-state">No engineering degrees added yet. <a href="/admin/degrees/new">Add one now</a></p>
+          <% } else { %>
+            <% degrees.forEach(degree => { %>
+              <div class="degree-card">
+                <h3><%= degree.name %></h3>
+                <p><%= degree.semesters.length %> Semesters</p>
+                <div class="actions">
+                  <a href="/admin/degrees/<%= degree._id %>/semesters" class="btn btn-sm">View Semesters</a>
+                  <a href="/admin/degrees/<%= degree._id %>/edit" class="btn btn-sm btn-secondary">Edit</a>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

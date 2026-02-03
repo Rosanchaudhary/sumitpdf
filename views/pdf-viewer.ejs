@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= note.title %> - PDF Viewer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'playfair': ['Playfair Display', 'serif'],
+            'work': ['Work Sans', 'sans-serif'],
+          },
+          colors: {
+            primary: '#667eea',
+            'primary-dark': '#5a67d8',
+            secondary: '#764ba2',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
+</head>
+<body class="m-0 overflow-hidden">
+  <div class="flex flex-col h-screen">
+    <!-- PDF Header -->
+    <div class="gradient-bg text-white px-4 sm:px-8 py-4 shadow-lg z-10">
+      <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-8">
+        <!-- PDF Info -->
+        <div class="flex-1 min-w-0 w-full lg:w-auto">
+          <!-- Breadcrumb -->
+          <div class="text-xs sm:text-sm opacity-85 mb-2 overflow-x-auto whitespace-nowrap">
+            <a href="/" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity">Home</a>
+            <span class="mx-1">/</span>
+            <a href="/degrees/<%= degree._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity"><%= degree.name %></a>
+            <span class="mx-1">/</span>
+            <a href="/semesters/<%= semester._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity">Sem <%= semester.number %></a>
+            <span class="mx-1">/</span>
+            <a href="/subjects/<%= subject._id %>" class="text-white opacity-80 hover:opacity-100 hover:underline transition-opacity"><%= subject.name %></a>
+          </div>
+
+          <!-- PDF Title -->
+          <h1 class="font-playfair text-xl sm:text-2xl lg:text-3xl font-bold mb-1 truncate lg:whitespace-normal">
+            <%= note.title %>
+          </h1>
+
+          <!-- PDF Meta -->
+          <div class="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm opacity-90">
+            <span class="flex items-center gap-1.5">
+              📝 <%= note.author %>
+            </span>
+            <span class="flex items-center gap-1.5">
+              📅 <%= new Date(note.uploadDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            </span>
+          </div>
+        </div>
+
+        <!-- PDF Actions -->
+        <div class="flex gap-2 sm:gap-3 w-full lg:w-auto flex-shrink-0">
+          <a 
+            href="/subjects/<%= subject._id %>" 
+            class="flex-1 lg:flex-initial inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-white bg-opacity-20 text-white rounded-lg font-medium text-sm sm:text-base border border-white border-opacity-30 transition-all hover:bg-opacity-30 hover:-translate-y-0.5"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Viewer -->
+    <iframe 
+      src="<%= note.pdfUrl %>#toolbar=1&navpanes=1&scrollbar=1" 
+      class="flex-1 w-full border-0 bg-gray-700"
+      title="<%= note.title %>"
+    ></iframe>
+  </div>
+</body>
+</html>
