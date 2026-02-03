@@ -1,7 +1,11 @@
-
 const fs = require("fs");
 const path = require("path");
-const { EngineeringDegree, Semester, Subject, Note } = require("../modals/NoteModal");
+const {
+  EngineeringDegree,
+  Semester,
+  Subject,
+  Note,
+} = require("../modals/NoteModal");
 
 // Dashboard
 exports.getDashboard = async (req, res) => {
@@ -62,13 +66,46 @@ exports.updateDegree = async (req, res) => {
 
 exports.deleteDegree = async (req, res) => {
   try {
+    const degree = await EngineeringDegree.findById(req.params.id).populate(
+      "semesters",
+    );
+
+    // Delete all associated semesters (and cascade to subjects/notes)
+    for (const semester of degree.semesters) {
+      // Get subjects for this semester
+      const semesterData = await Semester.findById(semester._id).populate(
+        "subjects",
+      );
+
+      // Delete all notes and PDFs for each subject
+      for (const subject of semesterData.subjects) {
+        const subjectData = await Subject.findById(subject._id).populate(
+          "notes",
+        );
+
+        // Delete PDF files and notes
+        for (const note of subjectData.notes) {
+          const filePath = path.join(__dirname, "..", "public", note.pdfUrl);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+          await Note.findByIdAndDelete(note._id);
+        }
+
+        await Subject.findByIdAndDelete(subject._id);
+      }
+
+      await Semester.findByIdAndDelete(semester._id);
+    }
+
+    // Finally delete the degree
     await EngineeringDegree.findByIdAndDelete(req.params.id);
+
     res.redirect("/admin/degrees");
   } catch (error) {
     res.status(500).render("error", { error: error.message });
   }
 };
-
 // ========== Semester Controllers ==========
 exports.getSemesters = async (req, res) => {
   try {
@@ -138,10 +175,28 @@ exports.updateSemester = async (req, res) => {
 
 exports.deleteSemester = async (req, res) => {
   try {
-    const semester = await Semester.findById(req.params.id);
+    const semester = await Semester.findById(req.params.id).populate(
+      "subjects",
+    );
     const degreeId = semester.engineeringDegree;
 
-    // Remove from degree
+    // Delete all subjects and their notes
+    for (const subject of semester.subjects) {
+      const subjectData = await Subject.findById(subject._id).populate("notes");
+
+      // Delete all notes and PDF files
+      for (const note of subjectData.notes) {
+        const filePath = path.join(__dirname, "..", "public", note.pdfUrl);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        await Note.findByIdAndDelete(note._id);
+      }
+
+      await Subject.findByIdAndDelete(subject._id);
+    }
+
+    // Remove semester from degree
     await EngineeringDegree.findByIdAndUpdate(degreeId, {
       $pull: { semesters: semester._id },
     });
@@ -228,10 +283,19 @@ exports.updateSubject = async (req, res) => {
 
 exports.deleteSubject = async (req, res) => {
   try {
-    const subject = await Subject.findById(req.params.id);
+    const subject = await Subject.findById(req.params.id).populate('notes');
     const semesterId = subject.semester;
 
-    // Remove from semester
+    // Delete all notes and PDF files
+    for (const note of subject.notes) {
+      const filePath = path.join(__dirname, "..", "public", note.pdfUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      await Note.findByIdAndDelete(note._id);
+    }
+
+    // Remove subject from semester
     await Semester.findByIdAndUpdate(semesterId, {
       $pull: { subjects: subject._id },
     });
@@ -315,7 +379,7 @@ exports.getEditNote = async (req, res) => {
   }
 };
 
-exports.updateNote = async (req, res) => { 
+exports.updateNote = async (req, res) => {
   try {
     const { title, author } = req.body;
     const updateData = { title, author };

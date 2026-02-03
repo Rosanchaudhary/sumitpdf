@@ -104,7 +104,7 @@ const engineeringDegreeSchema = new Schema({
 noteSchema.index({ subject: 1, title: 1 });
 subjectSchema.index({ semester: 1, name: 1 });
 semesterSchema.index({ engineeringDegree: 1, number: 1 });
-
+ 
 // Models
 const Note = mongoose.model('Note', noteSchema);
 const Subject = mongoose.model('Subject', subjectSchema);
